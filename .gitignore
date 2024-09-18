@@ -1,0 +1,6 @@
+# created by virtualenv automatically
+.venv/
+.venv3.9/
+.venv_new/
+.idea/
+

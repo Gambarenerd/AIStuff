@@ -4,8 +4,11 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
 
+print(gym.envs.registry.keys())
+
+
 # Impostazione dell'ambiente (versione aggiornata)
-env = gym.make('ALE/Pitfall-v5', render_mode='rgb_array')
+env = gym.make('CartPole-v1', render_mode='rgb_array')
 env = DummyVecEnv([lambda: env])
 env = VecFrameStack(env, n_stack=4)
 

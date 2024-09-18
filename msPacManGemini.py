@@ -4,6 +4,9 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
 
+print(gym.envs.registry.keys())
+
+
 # Impostazione dell'ambiente (versione aggiornata)
 env = gym.make('ALE/MsPacman-v5', render_mode='rgb_array')
 env = DummyVecEnv([lambda: env])
