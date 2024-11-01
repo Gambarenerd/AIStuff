@@ -7,6 +7,10 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from torch.utils.data import TensorDataset, DataLoader
+import joblib
+
+from src.models.neural_network_model import ComplexNeuralNetwork
+
 
 import numpy as np
 
@@ -18,9 +22,12 @@ else:
     device = torch.device('cpu')
     print("CUDA is not available. Using CPU.")
 
-df = pd.read_csv("resources/averageCleaned.csv")
+df = pd.read_csv("../../data/cleanedExperimentForecast.csv")
+# Stampa i valori massimi di GROSS_SPA e NET_SPA
+print("Valore massimo di GROSS_SPA:", df['GROSS_SPA'].max())
+print("Valore massimo di NET_SPA:", df['NET_SPA'].max())
 
-categorical_columns = ["DOC_TYPE", "PROC_TYPE", "DOSSIER_TYPE"]
+categorical_columns = df.select_dtypes(include=['object']).columns
 
 # Winsorization
 #df['GROSS_SPA'] = np.clip(df['GROSS_SPA'], None, 50)
@@ -30,7 +37,7 @@ categorical_columns = ["DOC_TYPE", "PROC_TYPE", "DOSSIER_TYPE"]
 df = df[(df['GROSS_SPA'] <= 550) & (df['NET_SPA'] <= 350)]
 
 # Dividing feature
-X = df.drop(["GROSS_SPA", "NET_SPA", "ID"], axis=1)
+X = df.drop(["GROSS_SPA", "NET_SPA"], axis=1)
 y_gross = df["GROSS_SPA"]
 y_net = df["NET_SPA"]
 
@@ -57,7 +64,7 @@ y_net = np.log1p(y_net.values)
 scaler_y_gross = MinMaxScaler()
 y_gross = scaler_y_gross.fit_transform(y_gross.reshape(-1, 1))
 
-# Bette keep normalization otherwise the MAE increase
+# Better keep normalization otherwise the MAE increase
 scaler_y_net = MinMaxScaler()
 y_net = scaler_y_net.fit_transform(y_net.reshape(-1, 1))
 
@@ -69,54 +76,6 @@ y_net = torch.tensor(y_net, dtype=torch.float32)
 # Splitting data in training e test set
 X_train, X_test, y_gross_train, y_gross_test, y_net_train, y_net_test = train_test_split(
     X, y_gross, y_net, test_size=0.2, random_state=42)
-
-class ComplexNeuralNetwork(nn.Module):
-    def __init__(self, input_size, hidden_size1, hidden_size2, hidden_size3, hidden_size4, output_size):
-        super(ComplexNeuralNetwork, self).__init__()
-        # Primo livello
-        self.fc1 = nn.Linear(input_size, hidden_size1)
-        self.relu1 = nn.ReLU()
-        self.dropout1 = nn.Dropout(p=0.3)
-
-        # Secondo livello
-        self.fc2 = nn.Linear(hidden_size1, hidden_size2)
-        self.relu2 = nn.ReLU()
-        self.dropout2 = nn.Dropout(p=0.3)
-
-        # Terzo livello
-        self.fc3 = nn.Linear(hidden_size2, hidden_size3)
-        self.relu3 = nn.ReLU()
-        self.dropout3 = nn.Dropout(p=0.3)
-
-        # Quarto livello
-        self.fc4 = nn.Linear(hidden_size3, hidden_size4)
-        self.relu4 = nn.ReLU()
-        self.dropout4 = nn.Dropout(p=0.3)
-
-        # Output layer
-        self.fc5 = nn.Linear(hidden_size4, output_size)
-        self.activation_out = nn.Sigmoid()
-
-    def forward(self, x):
-        out = self.fc1(x)
-        out = self.relu1(out)
-        out = self.dropout1(out)
-
-        out = self.fc2(out)
-        out = self.relu2(out)
-        out = self.dropout2(out)
-
-        out = self.fc3(out)
-        out = self.relu3(out)
-        out = self.dropout3(out)
-
-        out = self.fc4(out)
-        out = self.relu4(out)
-        out = self.dropout4(out)
-
-        out = self.fc5(out)
-        out = self.activation_out(out)
-        return out
 
 num_epochs = 500
 learning_rate = 0.0001
@@ -212,3 +171,21 @@ mse_net = mean_squared_error(y_net_test_inv, y_net_pred_inv)
 mae_net = mean_absolute_error(y_net_test_inv, y_net_pred_inv)
 print(f'Test MSE for NET_SPA: {mse_net}')
 print(f'Test MAE for NET_SPA: {mae_net}')
+
+def save_all_models_and_preprocessors(model_gross, model_net, scaler_X, scaler_y_gross, scaler_y_net, preprocessor):
+    # Salvataggio dell'intero modello per GROSS_SPA
+    torch.save(model_gross, '../../models/full_model_gross.pth')
+
+    # Salvataggio dell'intero modello per NET_SPA
+    torch.save(model_net, '../../models/full_model_net.pth')
+
+    # Salva l'encoder (preprocessor) e gli scaler
+    joblib.dump(preprocessor, '../../models/preprocessor.pkl')
+    joblib.dump(scaler_X, '../../models/scaler_X.pkl')
+    joblib.dump(scaler_y_gross, '../../models/scaler_y_gross.pkl')
+    joblib.dump(scaler_y_net, '../../models/scaler_y_net.pkl')
+
+    print("Modelli, preprocessor e scaler salvati con successo.")
+
+# Salva tutto
+save_all_models_and_preprocessors(model_gross, model_net, scaler_X, scaler_y_gross, scaler_y_net, preprocessor)

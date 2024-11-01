@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-df = pd.read_csv("resources/averageCleaned.csv")
+df = pd.read_csv("data/averageCleaned.csv")
 
 # Crea un istogramma per GROSS_SPA
 plt.figure(figsize=(10, 5))

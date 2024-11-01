@@ -5,8 +5,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Carica il dataset
-file_path = "resources/averageFinalCleaned.csv"
+file_path = "../../data/cleanedExperimentForecast.csv"
 df = pd.read_csv(file_path)
+
+# Stampa i valori massimi di GROSS_SPA e NET_SPA
+print("Valore massimo di GROSS_SPA:", df['GROSS_SPA'].max())
+print("Valore massimo di NET_SPA:", df['NET_SPA'].max())
+
+# 2. Rimuovi le righe con valori di GROSS_SPA o NET_SPA maggiori di 500
+df = df[(df['NET_SPA'] <= 500)]
 
 # Identifica le feature categoriali (stringhe)
 categorical_columns = df.select_dtypes(include=['object']).columns

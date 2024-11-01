@@ -17,7 +17,7 @@ else:
     device = torch.device('cpu')
     print("CUDA is not available. Using CPU.")
 
-df = pd.read_csv("resources/averageCleaned.csv")
+df = pd.read_csv("../../data/averageCleaned.csv")
 
 print(df.head().to_markdown(index=False, numalign="left", stralign="left"))
 

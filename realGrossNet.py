@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 from sklearn.compose import ColumnTransformer
 
 # Caricamento del file Excel
-file_path = "resources/realGrossNet.xlsx"
+file_path = "data/realGrossNet.xlsx"
 df = pd.read_excel(file_path, engine='openpyxl')
 
 # Sostituisci i valori non numerici con NaN

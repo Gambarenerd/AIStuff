@@ -18,7 +18,7 @@ else:
     print("CUDA is not available. Using CPU.")
 
 # Load dataset
-df = pd.read_csv("resources/averageCleaned.csv")
+df = pd.read_csv("data/averageCleaned.csv")
 
 categorical_columns = ["DOC_TYPE", "PROC_TYPE", "DOSSIER_TYPE"]
 

@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Caricamento del dataset
-file_path = "resources/realGrossNet.xlsx"
+file_path = "../../data/realGrossNet.xlsx"
 df = pd.read_excel(file_path, engine='openpyxl')
 
 df.dropna(subset=['Procedure', 'Committee', 'Document Type'], inplace=True)
